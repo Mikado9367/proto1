@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+import "google/type/date.proto";
+import "google/type/timestamp.proto";
+
+package secpos;
+
+option go_package = "/secpos";
+
+enum BusinessPeriodType {
+    LAST = 0;
+    SOD = 1;
+    EOD = 2;
+    NTS = 3;
+}
+
+message SecurityPositionKey {
+    string isin = 2;
+    string account = 3;
+    string restrictionType = 4;
+    string clientId = 5;
+}
+
+message SecurityPositionValue {
+    double position_quantity = 1;
+    double position_quantity_sod = 2;
+    string period_evt_reference = 3;
+    google.protobuf.Timestamp sett_position_ts = 4;
+}
+
+message SecurityPosition {
+    SecurityPositionKey securityPositionKey = 1;
+    SecurityPositionValue securityPositionValue = 2;
+}
+
+message SecPosRequest {
+    message SearchCriteria {
+        BusinessPeriodType businessPeriodType = 1;
+        google.type.Date businessDate = 2;
+        SecurityPositionKey securityPositionKey = 3;
+    }
+}
+
+message SecPosResponse {
+        repeated SecurityPosition securityPosition = 1;
+}
+/* 
+Seems to be the same but it is not.
+Allow user to Get Clear, and different functions to have
+Business control & business logic different.
+*/
+service SecurityPosisionSettlementService {
+    rpc GetOneSecurityPosition(SecPosRequest) returns (SecPosResponse);
+    rpc GetOneSecurityPositionWithAllDetails(SecPosRequest) returns (SecPosResponse);
+    rpc GetHistoricalFromOneSecurityPosition(SecPosRequest) returns (SecPosResponse);
+    rpc GetAllSecurityPositionFromIsin(SecPosRequest) returns (SecPosResponse);
+}
+
